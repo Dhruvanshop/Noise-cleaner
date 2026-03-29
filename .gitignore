@@ -12,9 +12,11 @@ env/
 dist/
 build/
 
-# Environment
+# Environment - NEVER commit these!
+.env
 .env.local
 .env.*.local
+.env.production
 
 # IDE
 .vscode/
@@ -30,5 +32,13 @@ Thumbs.db
 temp/
 *.log
 
-# Don't ignore .env for deployment reference
-# (but never commit secrets!)
+# Audio/Video files - don't commit test files
+*.mp3
+*.wav
+*.flac
+*.ogg
+*.m4a
+*.mp4
+*.avi
+*.mov
+WhatsApp*
