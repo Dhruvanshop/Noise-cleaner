@@ -1,0 +1,17 @@
+# Absolute minimal requirements for Render free tier
+# This will give you basic audio processing only
+
+# Web framework
+fastapi==0.104.1
+uvicorn==0.24.0
+python-multipart==0.0.6
+
+# Audio processing (lightweight)
+soundfile==0.12.1
+numpy==1.24.3
+scipy==1.11.3
+
+# File handling
+aiofiles==23.2.1
+
+# That's it! Only ~100MB total
