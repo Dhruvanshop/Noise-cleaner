@@ -1,17 +1,21 @@
-# Absolute minimal requirements for Render free tier
-# This will give you basic audio processing only
+# Minimal requirements for Render free tier
+# Using versions with pre-built wheels (no compilation needed)
 
 # Web framework
-fastapi==0.104.1
-uvicorn==0.24.0
-python-multipart==0.0.6
+fastapi>=0.109.0
+uvicorn[standard]>=0.27.0
+python-multipart>=0.0.9
 
-# Audio processing (lightweight)
-soundfile==0.12.1
-numpy==1.24.3
-scipy==1.11.3
+# Audio processing (lightweight, pre-built wheels)
+soundfile>=0.12.1
+numpy>=1.26.0
+scipy>=1.12.0
 
 # File handling
-aiofiles==23.2.1
+aiofiles>=23.2.1
 
-# That's it! Only ~100MB total
+# Core dependencies
+starlette>=0.36.0
+pydantic>=2.6.0
+
+# Total size: ~150MB
