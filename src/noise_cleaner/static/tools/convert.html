@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Audio & Video Format Converter — Extract Audio from Video Free | Noise Cleaner</title>
+<meta name="description" content="Convert audio between WAV, MP3, FLAC, OGG, M4A. Extract audio from MP4, MOV, MKV videos. Free, local, private."/>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="/static/css/base.css"/>
+<style>
+.ph-icon { background:linear-gradient(135deg,#f59e0b,#d97706); box-shadow:0 0 28px var(--ga); }
+.spinner  { border-top-color:var(--amber); }
+</style>
+</head>
+<body>
+<div class="aurora" aria-hidden="true">
+  <div class="aurora-orb"></div><div class="aurora-orb"></div>
+  <div class="aurora-orb"></div><div class="aurora-orb"></div>
+</div>
+<nav class="nav">
+  <a href="/">🔇 Noise Remover</a>
+  <a href="/tools/normalize">📊 Normalizer</a>
+  <a href="/tools/trim">✂️ Silence Remover</a>
+  <a href="/tools/convert" class="active">🔄 Converter</a>
+  <a href="/tools/stems">🎸 Stem Splitter</a>
+  <a href="/tools/caption">💬 Captions</a>
+  <a href="/tools/repair">🔧 Repair</a>
+  <a href="/tools/dereverberate">🏠 De-Reverb</a>
+  <a href="/tools/analyze">🎵 Analyzer</a>
+  <a href="/tools/batch">📦 Batch</a>
+  <a href="/tools/remix">🎛 Remixer</a>
+  <a href="/tools/pipeline">⛓ Pipeline</a>
+  <div class="nav-sp"></div>
+  <button class="nav-icon-btn" id="theme-toggle" title="Toggle theme">🌙</button>
+</nav>
+<div class="wrap">
+  <div class="page-header">
+    <div class="ph-left">
+      <div class="ph-icon">🔄</div>
+      <div>
+        <div class="ph-title">Audio Converter</div>
+        <div class="ph-sub">Convert audio formats · Extract audio from video · WAV · MP3 · FLAC · OGG · M4A</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="mode-pills">
+    <button class="mode-pill active audio" id="pill-audio" onclick="setMode('audio')">🎵 Audio File</button>
+    <button class="mode-pill video"        id="pill-video" onclick="setMode('video')">🎬 Extract from Video</button>
+  </div>
+
+  <div id="view-upload" class="view active">
+    <div class="card">
+      <div id="dropzone" class="dropzone">
+        <span class="dz-icon" id="dz-icon">📂</span>
+        <h2 id="dz-title">Drop your audio file here</h2>
+        <p id="dz-sub">Supports WAV, MP3, FLAC, OGG, M4A, AIFF</p>
+        <div class="fmt-tags" id="dz-tags">
+          <span class="fmt-tag">WAV</span><span class="fmt-tag">MP3</span>
+          <span class="fmt-tag">FLAC</span><span class="fmt-tag">OGG</span><span class="fmt-tag">M4A</span>
+        </div>
+        <div style="margin-top:16px;position:relative;z-index:1">
+          <button class="btn btn-primary" id="browse-btn">Browse file</button>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title" id="fmt-grid-title">🎯 Output Format</div>
+      <div class="fmt-grid" id="fmt-grid">
+        <div class="fmt-card" data-fmt="mp3"><div class="fmt-card-name">MP3</div><div class="fmt-card-desc">Universal · lossy</div></div>
+        <div class="fmt-card active" data-fmt="wav"><div class="fmt-card-name">WAV</div><div class="fmt-card-desc">Lossless · studio</div></div>
+        <div class="fmt-card" data-fmt="flac"><div class="fmt-card-name">FLAC</div><div class="fmt-card-desc">Lossless · compressed</div></div>
+        <div class="fmt-card" data-fmt="ogg"><div class="fmt-card-name">OGG</div><div class="fmt-card-desc">Open · lossy</div></div>
+        <div class="fmt-card" data-fmt="m4a"><div class="fmt-card-name">M4A</div><div class="fmt-card-desc">Apple · AAC</div></div>
+      </div>
+      <div id="mp3-settings" style="display:none">
+        <div class="setting-row">
+          <label><span>MP3 Bitrate</span><span class="sv" id="v-bitrate">192 kbps</span></label>
+          <input type="range" id="s-bitrate" min="64" max="320" step="64" value="192"/>
+          <div class="setting-hint">128 kbps = streaming · 192 kbps = standard · 320 kbps = max</div>
+        </div>
+      </div>
+      <div class="setting-row" style="margin-top:8px">
+        <label><span>Sample Rate</span><span class="sv" id="v-sr">Keep original</span></label>
+        <select id="s-sr">
+          <option value="0" selected>Keep original</option>
+          <option value="44100">44,100 Hz (CD / music)</option>
+          <option value="48000">48,000 Hz (video / podcast)</option>
+          <option value="22050">22,050 Hz (speech / voice)</option>
+          <option value="16000">16,000 Hz (telephony / AI)</option>
+          <option value="8000">8,000 Hz (very lo-fi)</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <div id="view-processing" class="view">
+    <div class="card">
+      <div class="processing">
+        <div class="spinner-wrap"><div class="spinner"></div><div class="spinner-inner"></div></div>
+        <h3 id="proc-title">Converting audio…</h3>
+        <p style="font-size:13px;color:var(--text-2)" id="proc-sub">Reading · resampling · encoding…</p>
+      </div>
+    </div>
+  </div>
+
+  <div id="view-results" class="view">
+    <div class="info-strip">
+      <div class="info-tile"><div class="info-tile-val" id="r-duration">--</div><div class="info-tile-lbl">Duration</div></div>
+      <div class="info-tile"><div class="info-tile-val" id="r-sr-out" style="color:#818cf8">--</div><div class="info-tile-lbl">Sample Rate</div></div>
+      <div class="info-tile"><div class="info-tile-val" id="r-size-in">--</div><div class="info-tile-lbl">Original Size</div></div>
+      <div class="info-tile"><div class="info-tile-val" id="r-size-out" style="color:var(--green)">--</div><div class="info-tile-lbl">Output Size</div></div>
+    </div>
+    <div class="card">
+      <div style="margin-bottom:12px"><a id="dl-btn" class="btn btn-green" href="#" download>⬇ Download Converted File</a></div>
+      <div style="text-align:center"><button id="reset-btn" class="btn btn-ghost btn-sm">↩ Convert Another File</button></div>
+    </div>
+  </div>
+
+  <footer>
+    <a href="/">Noise Remover</a> · <a href="/tools/normalize">Normalizer</a> · <a href="/tools/trim">Silence Remover</a> · <a href="/tools/convert">Converter</a>
+    &nbsp;|&nbsp; 100% local · no data leaves your machine
+  </footer>
+</div>
+<div id="toast"></div>
+<input type="file" id="file-input" accept="audio/*,.wav,.flac,.ogg,.aif,.mp3,.m4a" style="display:none"/>
+<script src="/static/js/shared.js"></script>
+<script src="/static/js/convert.js"></script>
+</body>
+</html>

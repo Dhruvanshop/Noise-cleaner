@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Stem Remixer — Mix Separated Stems | Noise Cleaner</title>
+<meta name="description" content="Remix separated stems from a completed Stem Splitter job with per-stem volume control and mute. Free, local, private."/>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="/static/css/base.css"/>
+<style>
+.ph-icon { background:linear-gradient(135deg,#f59e0b,#b45309); box-shadow:0 0 28px #f59e0b80; }
+.stem-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(160px,1fr)); gap:12px; margin-top:12px; }
+.stem-mix-card {
+  --sc: #aaa;
+  background:var(--bg-2); border:1px solid var(--bdr); border-radius:14px;
+  padding:16px 14px; text-align:center;
+  transition:opacity .2s;
+}
+.stem-mix-card.muted { opacity:.4; }
+.smc-header { display:flex; align-items:center; gap:6px; margin-bottom:10px; }
+.smc-icon { font-size:20px; }
+.smc-name { flex:1; font-size:13px; font-weight:600; text-transform:capitalize; color:var(--text); }
+.smc-mute {
+  padding:2px 8px; border-radius:6px; border:1px solid var(--bdr);
+  background:var(--bg-3); color:var(--text-2); font-size:11px; cursor:pointer;
+  transition:background .15s, color .15s;
+}
+.smc-mute.active { background:var(--sc); color:#fff; border-color:var(--sc); }
+.smc-vol { width:100%; accent-color:var(--sc); margin:4px 0; }
+.smc-vol-label { font-size:11px; color:var(--text-3); }
+.job-id-field {
+  background:var(--bg-2); border:1px solid var(--bdr); border-radius:10px;
+  padding:10px 14px; font-size:14px; color:var(--text); width:100%; box-sizing:border-box;
+  outline:none;
+}
+.job-id-field:focus { border-color:var(--accent); }
+.mix-controls { display:flex; align-items:center; gap:10px; margin-top:16px; }
+label.toggle-label { display:flex; align-items:center; gap:6px; font-size:13px; color:var(--text-2); cursor:pointer; }
+</style>
+</head>
+<body>
+<div class="aurora" aria-hidden="true">
+  <div class="aurora-orb"></div><div class="aurora-orb"></div>
+  <div class="aurora-orb"></div><div class="aurora-orb"></div>
+</div>
+<nav class="nav">
+  <a href="/">&#x1F507; Noise Remover</a>
+  <a href="/tools/normalize">&#x1F4CA; Normalizer</a>
+  <a href="/tools/trim">&#x2702;&#xFE0F; Silence Remover</a>
+  <a href="/tools/convert">&#x1F504; Converter</a>
+  <a href="/tools/stems">&#x1F3B8; Stem Splitter</a>
+  <a href="/tools/caption">&#x1F4AC; Captions</a>
+  <a href="/tools/repair">&#x1F527; Repair</a>
+  <a href="/tools/dereverberate">&#x1F3E0; De-Reverb</a>
+  <a href="/tools/analyze">&#x1F3B5; Analyzer</a>
+  <a href="/tools/batch">&#x1F4E6; Batch</a>
+  <a href="/tools/remix" class="active">&#x1F39B; Remixer</a>
+  <a href="/tools/pipeline">&#x26D3; Pipeline</a>
+  <div class="nav-sp"></div>
+  <button class="nav-icon-btn" id="theme-toggle" title="Toggle theme">&#x1F319;</button>
+</nav>
+<div class="wrap">
+  <div class="page-header">
+    <div class="ph-left">
+      <div class="ph-icon">&#x1F39B;</div>
+      <div>
+        <div class="ph-title">Stem Remixer</div>
+        <div class="ph-sub">Per-stem volume control &amp; mute &middot; remix from a completed Stem Splitter job</div>
+      </div>
+    </div>
+    <span class="ai-pill">&#x1F3B8; Mix Engine</span>
+  </div>
+
+  <!-- LOAD VIEW: enter job ID -->
+  <div id="view-load" class="view active">
+    <div class="card">
+      <div class="card-title">&#x1F50D; Load Stems from Job</div>
+      <p style="font-size:13px;color:var(--text-2);margin-bottom:14px">
+        First separate stems using the <a href="/tools/stems" style="color:var(--accent)">Stem Splitter</a>,
+        then paste the Job ID here to remix.
+      </p>
+      <input
+        type="text" id="jobIdInput" class="job-id-field"
+        placeholder="Paste stems job ID (e.g. 3f4a7b12-…)"
+        autocomplete="off" spellcheck="false"
+      />
+      <div style="margin-top:14px">
+        <button class="btn btn-primary" id="loadBtn">&#x1F4C2; Load Stems</button>
+      </div>
+    </div>
+    <div class="card" style="text-align:center;padding:16px">
+      <p style="font-size:13px;color:var(--text-3);margin:0">
+        &#x2139;&#xFE0F;&nbsp; The job ID is shown on the Stem Splitter results page after separation finishes.
+      </p>
+    </div>
+  </div>
+
+  <!-- MIXER VIEW -->
+  <div id="view-mixer" class="view">
+    <div class="card">
+      <div class="card-title">&#x1F39B; Mix Stems
+        <span style="font-size:11px;font-weight:400;color:var(--text-3);margin-left:8px">Job: <span id="jobIdLabel">—</span></span>
+      </div>
+      <div id="stemGrid" class="stem-grid"></div>
+
+      <div class="mix-controls">
+        <div style="flex:1">
+          <label style="font-size:12px;color:var(--text-3);display:block;margin-bottom:4px">Output Format</label>
+          <select id="fmtSelect" style="padding:7px 12px;border-radius:8px;background:var(--bg-2);border:1px solid var(--bdr);color:var(--text);font-size:13px">
+            <option value="wav">WAV</option>
+            <option value="flac">FLAC</option>
+            <option value="mp3">MP3</option>
+            <option value="ogg">OGG</option>
+          </select>
+        </div>
+        <label class="toggle-label">
+          <input type="checkbox" id="normalizeToggle" checked style="accent-color:var(--accent)"/>
+          Peak normalize
+        </label>
+      </div>
+
+      <div style="margin-top:16px;display:flex;gap:8px">
+        <button class="btn btn-primary" id="mixBtn" style="flex:1">&#x1F3B5; Export Remix</button>
+        <button class="btn btn-ghost btn-sm" id="resetBtn">&#x21A9; Back</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- PROCESSING VIEW -->
+  <div id="view-processing" class="view">
+    <div class="card">
+      <div class="processing">
+        <div class="spinner-wrap"><div class="spinner"></div><div class="spinner-inner"></div></div>
+        <h3>Mixing stems…</h3>
+        <p style="font-size:13px;color:var(--text-2)">Loading &middot; applying volumes &middot; summing &middot; normalising…</p>
+        <p style="font-size:12px;color:var(--text-3)" id="procTimer">0:00</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- RESULT VIEW -->
+  <div id="view-result" class="view">
+    <div class="info-strip">
+      <div class="info-tile"><div class="info-tile-val" id="resDuration" style="color:var(--accent)">—</div><div class="info-tile-lbl">Duration</div></div>
+      <div class="info-tile"><div class="info-tile-val" id="resProcTime" style="color:var(--green)">—</div><div class="info-tile-lbl">Mix Time</div></div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">&#x1F50A; Preview Remix</div>
+      <audio id="audioPreview" controls style="width:100%;margin-top:8px"></audio>
+    </div>
+
+    <div class="result-banner">
+      <span class="rb-icon">&#x1F3B5;</span>
+      <div>
+        <div class="rb-val">Remix ready</div>
+        <div class="rb-label">
+          Active: <span id="resStemsMixed">—</span> &middot;
+          Muted: <span id="resStemsMuted">—</span>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div style="margin-bottom:12px">
+        <button class="btn btn-green" id="downloadBtn">&#x2B07; Download Remix</button>
+      </div>
+      <div style="text-align:center">
+        <button class="btn btn-ghost btn-sm" onclick="location.reload()">&#x1F504; Mix Again</button>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    <a href="/tools/stems">Stem Splitter</a> &middot; <a href="/tools/remix">Remixer</a>
+    &nbsp;|&nbsp; 100% local &middot; no data leaves your machine
+  </footer>
+</div>
+<div id="toast"></div>
+<script src="/static/js/shared.js"></script>
+<script src="/static/js/remix.js"></script>
+</body>
+</html>

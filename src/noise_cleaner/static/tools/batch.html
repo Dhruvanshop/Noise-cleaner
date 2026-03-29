@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Batch Processor — Process Multiple Audio Files | Noise Cleaner</title>
+<meta name="description" content="Process multiple audio files at once. Denoise, normalize, trim, convert, repair, or de-reverb in bulk. Download as ZIP. Free, local, private."/>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="/static/css/base.css"/>
+<style>
+.ph-icon { background:linear-gradient(135deg,#10b981,#059669); box-shadow:0 0 28px #10b98180; }
+.queue-list { list-style:none; margin:10px 0 0; padding:0; display:flex; flex-direction:column; gap:6px; max-height:260px; overflow-y:auto; }
+.queue-item {
+  display:flex; align-items:center; gap:8px; padding:8px 12px;
+  background:var(--bg-2); border:1px solid var(--bdr); border-radius:10px; font-size:13px;
+}
+.qi-name { flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; color:var(--text); }
+.qi-size { color:var(--text-3); font-size:11px; flex-shrink:0; }
+.qi-remove { background:none; border:none; color:var(--text-3); cursor:pointer; padding:0 4px; font-size:14px; }
+.qi-remove:hover { color:var(--err,#f44); }
+.tool-params { margin-top:12px; }
+.queue-head { display:flex; align-items:center; justify-content:space-between; margin-bottom:6px; }
+.queue-count { font-size:12px; color:var(--text-3); }
+select.settings-select { width:100%; padding:8px; border-radius:8px; background:var(--bg-2); border:1px solid var(--bdr); color:var(--text); font-size:13px; }
+</style>
+</head>
+<body>
+<div class="aurora" aria-hidden="true">
+  <div class="aurora-orb"></div><div class="aurora-orb"></div>
+  <div class="aurora-orb"></div><div class="aurora-orb"></div>
+</div>
+<nav class="nav">
+  <a href="/">&#x1F507; Noise Remover</a>
+  <a href="/tools/normalize">&#x1F4CA; Normalizer</a>
+  <a href="/tools/trim">&#x2702;&#xFE0F; Silence Remover</a>
+  <a href="/tools/convert">&#x1F504; Converter</a>
+  <a href="/tools/stems">&#x1F3B8; Stem Splitter</a>
+  <a href="/tools/caption">&#x1F4AC; Captions</a>
+  <a href="/tools/repair">&#x1F527; Repair</a>
+  <a href="/tools/dereverberate">&#x1F3E0; De-Reverb</a>
+  <a href="/tools/analyze">&#x1F3B5; Analyzer</a>
+  <a href="/tools/batch" class="active">&#x1F4E6; Batch</a>
+  <a href="/tools/remix">&#x1F39B; Remixer</a>
+  <a href="/tools/pipeline">&#x26D3; Pipeline</a>
+  <div class="nav-sp"></div>
+  <button class="nav-icon-btn" id="theme-toggle" title="Toggle theme">&#x1F319;</button>
+</nav>
+<div class="wrap">
+  <div class="page-header">
+    <div class="ph-left">
+      <div class="ph-icon">&#x1F4E6;</div>
+      <div>
+        <div class="ph-title">Batch Processor</div>
+        <div class="ph-sub">Process many files at once &middot; download results as ZIP &middot; all tools supported</div>
+      </div>
+    </div>
+    <span class="ai-pill">&#x26A1; Parallel Engine</span>
+  </div>
+
+  <!-- DROP / QUEUE VIEW -->
+  <div id="view-drop" class="view active">
+    <div class="card">
+      <div id="dz" class="dropzone" style="padding:28px 20px">
+        <span class="dz-icon">&#x1F4E5;</span>
+        <h2>Drop audio files here</h2>
+        <p>Drag &amp; drop multiple files or click browse &middot; WAV, MP3, FLAC, OGG</p>
+        <div style="margin-top:16px;position:relative;z-index:1">
+          <button class="btn btn-primary" id="browseBtn">Browse files</button>
+        </div>
+      </div>
+      <div style="margin-top:16px">
+        <div class="queue-head">
+          <span class="card-title" style="margin-bottom:0">File Queue</span>
+          <span class="queue-count" id="queueCount">No files</span>
+        </div>
+        <ul class="queue-list" id="queueList"></ul>
+        <div style="margin-top:10px;display:flex;gap:8px">
+          <button class="btn btn-ghost btn-sm" id="clearQueueBtn">&#x1F5D1; Clear All</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">&#x1F6E0; Tool &amp; Settings</div>
+      <div class="setting-row">
+        <label><span>Processing Tool</span></label>
+        <select id="toolSelect" class="settings-select" style="margin-top:6px">
+          <option value="denoise">&#x1F507; Denoise (noise removal)</option>
+          <option value="normalize">&#x1F4CA; Normalize loudness</option>
+          <option value="trim">&#x2702; Trim silence</option>
+          <option value="convert">&#x1F504; Convert format</option>
+          <option value="repair">&#x1F527; Repair (hum + clicks)</option>
+          <option value="dereverberate">&#x1F3E0; De-reverberate</option>
+        </select>
+      </div>
+
+      <!-- Tool-specific params -->
+      <div class="tool-params" data-tool="denoise" style="display:none">
+        <p style="font-size:13px;color:var(--text-3)">Uses Wiener filter noise reduction with default settings.</p>
+      </div>
+
+      <div class="tool-params" data-tool="normalize" style="display:none">
+        <div class="setting-row">
+          <label><span>Target LUFS</span><span class="sv" id="batchLufsVal">-16.0</span></label>
+          <input type="range" id="batchLufsSlider" min="-32" max="-5" step="0.5" value="-16"
+            oninput="document.getElementById('batchLufsVal').textContent=this.value"/>
+        </div>
+        <div class="setting-row">
+          <label><span>True Peak Ceiling</span><span class="sv" id="batchPeakVal">-1.0</span></label>
+          <input type="range" id="batchPeakSlider" min="-6" max="-0.1" step="0.1" value="-1"
+            oninput="document.getElementById('batchPeakVal').textContent=this.value"/>
+        </div>
+      </div>
+
+      <div class="tool-params" data-tool="trim" style="display:none">
+        <div class="setting-row">
+          <label><span>Silence Threshold</span><span class="sv" id="batchThreshVal">-40 dB</span></label>
+          <input type="range" id="batchThreshSlider" min="-60" max="-20" step="1" value="-40"
+            oninput="document.getElementById('batchThreshVal').textContent=this.value+' dB'"/>
+        </div>
+        <div class="setting-row">
+          <label><span>Min Silence (ms)</span></label>
+          <input type="number" id="batchMinSilMs" value="500" min="50" max="5000"
+            style="padding:6px;border-radius:6px;background:var(--bg-2);border:1px solid var(--bdr);color:var(--text);width:100px"/>
+        </div>
+        <div class="setting-row">
+          <label><span>Padding (ms)</span></label>
+          <input type="number" id="batchPadMs" value="50" min="0" max="1000"
+            style="padding:6px;border-radius:6px;background:var(--bg-2);border:1px solid var(--bdr);color:var(--text);width:100px"/>
+        </div>
+      </div>
+
+      <div class="tool-params" data-tool="convert" style="display:none">
+        <div class="setting-row">
+          <label><span>Bitrate</span></label>
+          <select id="batchBitrate" class="settings-select" style="margin-top:6px">
+            <option value="128k">128 kbps</option>
+            <option value="192k" selected>192 kbps</option>
+            <option value="256k">256 kbps</option>
+            <option value="320k">320 kbps</option>
+          </select>
+        </div>
+        <div class="setting-row">
+          <label><span>Sample Rate</span></label>
+          <select id="batchSampleRate" class="settings-select" style="margin-top:6px">
+            <option value="44100" selected>44100 Hz</option>
+            <option value="48000">48000 Hz</option>
+            <option value="22050">22050 Hz</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="tool-params" data-tool="repair" style="display:none">
+        <div style="display:flex;flex-direction:column;gap:10px;margin-top:8px">
+          <label style="display:flex;align-items:center;gap:8px;font-size:13px;color:var(--text-2);cursor:pointer">
+            <input type="checkbox" id="batchRemoveHum" checked style="accent-color:var(--accent)"/>
+            Remove hum &amp; buzz
+          </label>
+          <label style="display:flex;align-items:center;gap:8px;font-size:13px;color:var(--text-2);cursor:pointer">
+            <input type="checkbox" id="batchRemoveClicks" checked style="accent-color:var(--accent)"/>
+            Repair clicks &amp; pops
+          </label>
+        </div>
+      </div>
+
+      <div class="tool-params" data-tool="dereverberate" style="display:none">
+        <div class="setting-row">
+          <label><span>Strength</span><span class="sv" id="batchDerevStrengthVal">70%</span></label>
+          <input type="range" id="batchDerevStrength" min="0.1" max="1.0" step="0.05" value="0.7"
+            oninput="document.getElementById('batchDerevStrengthVal').textContent=Math.round(this.value*100)+'%'"/>
+        </div>
+        <div class="setting-row">
+          <label><span>Room Decay (ms)</span><span class="sv" id="batchDerevDecayVal">80 ms</span></label>
+          <input type="range" id="batchDerevDecay" min="20" max="500" step="10" value="80"
+            oninput="document.getElementById('batchDerevDecayVal').textContent=this.value+' ms'"/>
+        </div>
+      </div>
+
+      <div style="margin-top:18px">
+        <div class="card-title">Output Format</div>
+        <select id="fmtSelect" class="settings-select" style="margin-top:6px">
+          <option value="wav">WAV</option>
+          <option value="flac">FLAC</option>
+          <option value="mp3">MP3</option>
+          <option value="ogg">OGG</option>
+        </select>
+      </div>
+
+      <div style="margin-top:18px">
+        <button class="btn btn-primary" id="processBtn" disabled style="width:100%">
+          &#x25B6; Process All Files
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- PROCESSING VIEW -->
+  <div id="view-processing" class="view">
+    <div class="card">
+      <div class="processing">
+        <div class="spinner-wrap"><div class="spinner"></div><div class="spinner-inner"></div></div>
+        <h3>Processing batch…</h3>
+        <p style="font-size:13px;color:var(--text-2)">Files are being processed on the server. This may take a few minutes.</p>
+        <p style="font-size:12px;color:var(--text-3)" id="procTimer">0:00</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- RESULT VIEW -->
+  <div id="view-result" class="view">
+    <div class="info-strip">
+      <div class="info-tile"><div class="info-tile-val" id="resFilesOk" style="color:var(--green)">—</div><div class="info-tile-lbl">Processed</div></div>
+      <div class="info-tile"><div class="info-tile-val" id="resFilesError" style="color:var(--err,#f44)">—</div><div class="info-tile-lbl">Errors</div></div>
+    </div>
+    <div id="resErrors" style="display:none" class="card">
+      <div class="card-title" style="color:var(--err,#f44)">&#x26A0; Errors</div>
+      <ul id="resErrorList" style="margin:8px 0 0;padding-left:18px;font-size:13px;color:var(--text-2)"></ul>
+    </div>
+    <div class="result-banner">
+      <span class="rb-icon">&#x1F4E6;</span>
+      <div>
+        <div class="rb-val">Batch complete</div>
+        <div class="rb-label">Download the ZIP to get all processed files</div>
+      </div>
+    </div>
+    <div class="card">
+      <div style="margin-bottom:12px">
+        <button class="btn btn-green" id="downloadBtn">&#x2B07; Download ZIP</button>
+      </div>
+      <div style="text-align:center">
+        <button id="resetBtn" class="btn btn-ghost btn-sm">&#x21A9; New Batch</button>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    <a href="/">Noise Remover</a> &middot; <a href="/tools/batch">Batch</a> &middot;
+    <a href="/tools/pipeline">Pipeline</a>
+    &nbsp;|&nbsp; 100% local &middot; no data leaves your machine
+  </footer>
+</div>
+<div id="toast"></div>
+<input type="file" id="fileInput" accept="audio/*,.wav,.flac,.ogg,.aif,.mp3,.m4a" multiple style="display:none"/>
+<script src="/static/js/shared.js"></script>
+<script src="/static/js/batch.js"></script>
+</body>
+</html>

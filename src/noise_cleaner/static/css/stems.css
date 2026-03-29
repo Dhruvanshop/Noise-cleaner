@@ -1,0 +1,109 @@
+/* stems.css — Stem Splitter page-specific styles */
+
+.ph-icon { background:linear-gradient(135deg,#a855f7,#7c3aed); box-shadow:0 0 28px var(--gv); }
+
+/* Model selector */
+.model-selector { display:flex; gap:0; border:1px solid var(--bd); border-radius:10px; overflow:hidden; margin-bottom:20px; background:var(--s2); }
+.model-btn { flex:1; padding:11px 18px; font-size:13px; font-weight:600; border:none; background:transparent; color:var(--text-2); cursor:pointer; transition:all .18s; display:flex; flex-direction:column; align-items:center; gap:3px; }
+.model-btn:not(:last-child) { border-right:1px solid var(--bd); }
+.model-btn.active { background:linear-gradient(135deg,rgba(79,70,229,.18),rgba(124,58,237,.12)); color:#c4b5fd; }
+.model-btn:not(.active):hover { background:rgba(255,255,255,.04); color:var(--text); }
+.model-btn small { font-size:10px; opacity:.65; font-weight:400; }
+
+/* Stem selector grid */
+.stem-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:10px; margin-bottom:20px; }
+.stem-card { padding:16px 8px; background:var(--s2); border:2px solid var(--bd); border-radius:var(--r); cursor:pointer; text-align:center; transition:all .18s; position:relative; }
+.stem-card:hover { border-color:var(--bd-h); }
+.stem-card.selected { border-color:var(--indigo); background:rgba(79,70,229,.1); }
+.stem-card[data-stem="vocals"].selected { border-color:var(--green);  background:rgba(16,185,129,.08); }
+.stem-card[data-stem="drums"].selected  { border-color:var(--amber);  background:rgba(245,158,11,.08); }
+.stem-card[data-stem="bass"].selected   { border-color:var(--violet); background:rgba(124,58,237,.08); }
+.stem-card[data-stem="other"].selected  { border-color:var(--cyan);   background:rgba(6,182,212,.08); }
+.stem-card[data-stem="guitar"].selected { border-color:var(--pink);   background:rgba(236,72,153,.08); }
+.stem-card[data-stem="piano"].selected  { border-color:var(--blue);   background:rgba(59,130,246,.08); }
+.stem-icon { font-size:24px; line-height:1; margin-bottom:6px; }
+.stem-name { font-size:12px; font-weight:700; letter-spacing:.02em; }
+.stem-desc { font-size:9px; color:var(--text-3); margin-top:2px; }
+.stem-check { position:absolute; top:7px; right:7px; width:16px; height:16px; border-radius:50%; border:2px solid var(--bd); background:var(--s3); transition:all .15s; }
+.stem-card.selected .stem-check { background:var(--indigo); border-color:var(--indigo); }
+.stem-card[data-stem="vocals"].selected .stem-check { background:var(--green);  border-color:var(--green); }
+.stem-card[data-stem="drums"].selected  .stem-check { background:var(--amber);  border-color:var(--amber); }
+.stem-card[data-stem="bass"].selected   .stem-check { background:var(--violet); border-color:var(--violet); }
+.stem-card[data-stem="other"].selected  .stem-check { background:var(--cyan);   border-color:var(--cyan); }
+.stem-card[data-stem="guitar"].selected .stem-check { background:var(--pink);   border-color:var(--pink); }
+.stem-card[data-stem="piano"].selected  .stem-check { background:var(--blue);   border-color:var(--blue); }
+.stem-card.hidden { display:none; }
+
+/* Spinner */
+.spinner { border-top-color:var(--violet); }
+.spinner-inner { border-top-color:var(--pink); }
+.proc-timer { font-size:22px; font-weight:800; color:#818cf8; font-variant-numeric:tabular-nums; margin:8px 0; }
+
+/* Mix bar */
+.mix-bar { background:linear-gradient(135deg,rgba(79,70,229,.1),rgba(124,58,237,.07)); border:1px solid rgba(79,70,229,.22); border-radius:var(--r-lg); padding:20px 22px; margin-bottom:16px; box-shadow:0 0 40px rgba(79,70,229,.08); }
+.mix-bar-top { display:flex; align-items:center; gap:12px; flex-wrap:wrap; }
+.mix-bar-info { flex:1; min-width:0; }
+.mix-bar-title { font-size:14px; font-weight:700; }
+.mix-bar-sub   { font-size:12px; color:var(--text-2); margin-top:2px; }
+.mix-controls  { display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+.mix-time { font-size:12px; color:var(--text-3); font-variant-numeric:tabular-nums; min-width:90px; text-align:right; }
+.mix-progress-wrap { margin-top:14px; }
+.mix-track { height:6px; background:var(--s4); border-radius:999px; position:relative; cursor:pointer; overflow:hidden; transition:height .15s; }
+.mix-track:hover { height:9px; }
+.mix-fill  { position:absolute; left:0; top:0; bottom:0; width:0%; background:linear-gradient(90deg,var(--indigo),var(--violet),var(--cyan)); border-radius:999px; pointer-events:none; transition:width .05s linear; }
+.mix-vol-row { display:flex; align-items:center; gap:8px; margin-top:10px; }
+.mix-vol-label  { font-size:11px; color:var(--text-3); white-space:nowrap; }
+.mix-vol-slider { flex:1; accent-color:var(--indigo); height:3px; }
+.btn-mix { background:linear-gradient(135deg,var(--indigo),var(--violet)); color:#fff; box-shadow:0 4px 18px var(--gi); padding:10px 20px; font-size:14px; font-weight:700; border-radius:10px; border:none; cursor:pointer; transition:all .2s; white-space:nowrap; display:inline-flex; align-items:center; gap:8px; }
+.btn-mix:hover { transform:translateY(-2px); box-shadow:0 8px 28px var(--gi); }
+.btn-stop { background:rgba(239,68,68,.12); color:var(--red); border:1px solid rgba(239,68,68,.25); padding:10px 18px; font-size:13px; font-weight:600; border-radius:10px; cursor:pointer; transition:all .2s; display:inline-flex; align-items:center; gap:6px; }
+.btn-stop:hover { background:rgba(239,68,68,.2); border-color:var(--red); }
+
+/* Per-stem player cards */
+.stem-player-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:16px; }
+.stem-player-card { background:var(--s2); border:1px solid var(--bd); border-radius:var(--r); padding:18px 18px 14px; display:flex; flex-direction:column; gap:12px; transition:border-color .2s,box-shadow .2s; }
+.stem-player-card:hover { border-color:var(--bd-h); }
+.stem-player-card[data-stem="vocals"] { border-color:rgba(16,185,129,.28); }
+.stem-player-card[data-stem="drums"]  { border-color:rgba(245,158,11,.28); }
+.stem-player-card[data-stem="bass"]   { border-color:rgba(124,58,237,.28); }
+.stem-player-card[data-stem="other"]  { border-color:rgba(6,182,212,.28); }
+.stem-player-card[data-stem="guitar"] { border-color:rgba(236,72,153,.28); }
+.stem-player-card[data-stem="piano"]  { border-color:rgba(59,130,246,.28); }
+.stem-player-card.is-playing { box-shadow:0 0 30px rgba(79,70,229,.15); }
+.stem-player-card[data-stem="vocals"].is-playing { box-shadow:0 0 30px rgba(16,185,129,.15); }
+.stem-player-card[data-stem="drums"].is-playing  { box-shadow:0 0 30px rgba(245,158,11,.15); }
+.stem-player-card[data-stem="bass"].is-playing   { box-shadow:0 0 30px rgba(124,58,237,.15); }
+.stem-player-card[data-stem="other"].is-playing  { box-shadow:0 0 30px rgba(6,182,212,.15); }
+.stem-player-card[data-stem="guitar"].is-playing { box-shadow:0 0 30px rgba(236,72,153,.15); }
+.stem-player-card[data-stem="piano"].is-playing  { box-shadow:0 0 30px rgba(59,130,246,.15); }
+.spc-header { display:flex; align-items:center; gap:10px; }
+.spc-icon   { font-size:22px; line-height:1; flex-shrink:0; }
+.spc-name   { font-size:14px; font-weight:700; flex:1; min-width:0; }
+.spc-time   { font-size:11px; color:var(--text-3); font-variant-numeric:tabular-nums; white-space:nowrap; }
+.spc-playbtn { width:40px; height:40px; border-radius:50%; flex-shrink:0; background:var(--s3); border:1px solid var(--bd); color:var(--text); font-size:15px; cursor:pointer; display:grid; place-items:center; transition:all .18s; }
+.spc-playbtn:hover { border-color:var(--indigo); background:rgba(79,70,229,.14); }
+.spc-playbtn.playing { background:var(--indigo); border-color:var(--indigo); color:#fff; box-shadow:0 0 18px var(--gi); }
+[data-stem="vocals"] .spc-playbtn.playing { background:var(--green);  border-color:var(--green);  box-shadow:0 0 18px var(--gg); }
+[data-stem="drums"]  .spc-playbtn.playing { background:var(--amber);  border-color:var(--amber);  box-shadow:0 0 18px var(--ga); }
+[data-stem="bass"]   .spc-playbtn.playing { background:var(--violet); border-color:var(--violet); box-shadow:0 0 18px var(--gv); }
+[data-stem="other"]  .spc-playbtn.playing { background:var(--cyan);   border-color:var(--cyan);   box-shadow:0 0 18px var(--gc); }
+[data-stem="guitar"] .spc-playbtn.playing { background:var(--pink);   border-color:var(--pink);   box-shadow:0 0 18px var(--gp); }
+[data-stem="piano"]  .spc-playbtn.playing { background:var(--blue);   border-color:var(--blue); }
+.spc-progress-track { height:5px; background:var(--s4); border-radius:999px; position:relative; cursor:pointer; overflow:hidden; transition:height .15s; }
+.spc-progress-track:hover { height:8px; }
+.spc-progress-fill { position:absolute; left:0; top:0; bottom:0; width:0%; border-radius:999px; pointer-events:none; transition:width .05s linear; }
+[data-stem="vocals"] .spc-progress-fill { background:linear-gradient(90deg,#059669,var(--green)); }
+[data-stem="drums"]  .spc-progress-fill { background:linear-gradient(90deg,#d97706,var(--amber)); }
+[data-stem="bass"]   .spc-progress-fill { background:linear-gradient(90deg,#6d28d9,var(--violet)); }
+[data-stem="other"]  .spc-progress-fill { background:linear-gradient(90deg,#0891b2,var(--cyan)); }
+[data-stem="guitar"] .spc-progress-fill { background:linear-gradient(90deg,#be185d,var(--pink)); }
+[data-stem="piano"]  .spc-progress-fill { background:linear-gradient(90deg,#1d4ed8,var(--blue)); }
+.spc-bottom    { display:flex; align-items:center; gap:8px; }
+.spc-vol-icon  { font-size:14px; cursor:pointer; color:var(--text-2); user-select:none; flex-shrink:0; }
+.spc-vol       { flex:1; accent-color:var(--indigo); height:3px; }
+.spc-dl        { flex-shrink:0; font-size:12px; padding:6px 12px; border-radius:8px; }
+
+@media(max-width:700px) {
+  .stem-grid { grid-template-columns:repeat(3,1fr); }
+  .stem-player-grid { grid-template-columns:1fr; }
+}

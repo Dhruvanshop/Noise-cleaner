@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Audio & Video Silence Remover — Remove Dead Air Free | Noise Cleaner</title>
+<meta name="description" content="Remove silence and dead air from audio or video. Accepts all formats. Free, local, private."/>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="/static/css/base.css"/>
+<style>
+.ph-icon { background:linear-gradient(135deg,#ef4444,#dc2626); box-shadow:0 0 28px var(--gr); }
+.spinner  { border-top-color:var(--red); }
+</style>
+</head>
+<body>
+<div class="aurora" aria-hidden="true">
+  <div class="aurora-orb"></div><div class="aurora-orb"></div>
+  <div class="aurora-orb"></div><div class="aurora-orb"></div>
+</div>
+<nav class="nav">
+  <a href="/">🔇 Noise Remover</a>
+  <a href="/tools/normalize">📊 Normalizer</a>
+  <a href="/tools/trim" class="active">✂️ Silence Remover</a>
+  <a href="/tools/convert">🔄 Converter</a>
+  <a href="/tools/stems">🎸 Stem Splitter</a>
+  <a href="/tools/caption">💬 Captions</a>
+  <a href="/tools/repair">🔧 Repair</a>
+  <a href="/tools/dereverberate">🏠 De-Reverb</a>
+  <a href="/tools/analyze">🎵 Analyzer</a>
+  <a href="/tools/batch">📦 Batch</a>
+  <a href="/tools/remix">🎛 Remixer</a>
+  <a href="/tools/pipeline">⛓ Pipeline</a>
+  <div class="nav-sp"></div>
+  <button class="nav-icon-btn" id="theme-toggle" title="Toggle theme">🌙</button>
+</nav>
+<div class="wrap">
+  <div class="page-header">
+    <div class="ph-left">
+      <div class="ph-icon">✂️</div>
+      <div>
+        <div class="ph-title">Silence Remover</div>
+        <div class="ph-sub">Remove dead air, long pauses, and silence gaps · audio &amp; video</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="mode-pills">
+    <button class="mode-pill active audio" id="pill-audio" onclick="setMode('audio')">🎵 Audio File</button>
+    <button class="mode-pill video"        id="pill-video" onclick="setMode('video')">🎬 Video File</button>
+  </div>
+
+  <div id="view-upload" class="view active">
+    <div class="card">
+      <div id="dropzone" class="dropzone">
+        <span class="dz-icon" id="dz-icon">📂</span>
+        <h2 id="dz-title">Drop your audio file here</h2>
+        <p id="dz-sub">Podcast recordings, interviews, voice memos · WAV, MP3, FLAC, OGG</p>
+        <div class="fmt-tags" id="dz-tags">
+          <span class="fmt-tag">WAV</span><span class="fmt-tag">MP3</span>
+          <span class="fmt-tag">FLAC</span><span class="fmt-tag">OGG</span>
+        </div>
+        <div style="margin-top:16px;position:relative;z-index:1">
+          <button class="btn btn-primary" id="browse-btn">Browse file</button>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">⚙ Settings</div>
+      <div class="presets">
+        <button class="preset-btn" data-min="200" data-db="-35">⚡ Aggressive<br><small style="font-weight:400;color:var(--text-3)">200ms+ gaps</small></button>
+        <button class="preset-btn active" data-min="500" data-db="-40">⚖ Normal<br><small style="font-weight:400;color:var(--text-3)">500ms+ gaps</small></button>
+        <button class="preset-btn" data-min="1000" data-db="-45">🌿 Conservative<br><small style="font-weight:400;color:var(--text-3)">1s+ gaps</small></button>
+      </div>
+      <div class="setting-row">
+        <label><span>Minimum Silence Length</span><span class="sv" id="v-min">500 ms</span></label>
+        <input type="range" id="s-min" min="100" max="3000" step="100" value="500"/>
+        <div class="setting-hint">Silences shorter than this are kept — preserves natural breathing</div>
+      </div>
+      <div class="setting-row">
+        <label><span>Silence Threshold</span><span class="sv" id="v-db">−40 dB</span></label>
+        <input type="range" id="s-db" min="-60" max="-20" step="1" value="-40"/>
+        <div class="setting-hint">RMS level below which audio is considered silence</div>
+      </div>
+      <div class="setting-row">
+        <label><span>Padding Around Cuts</span><span class="sv" id="v-pad">80 ms</span></label>
+        <input type="range" id="s-pad" min="0" max="300" step="10" value="80"/>
+        <div class="setting-hint">Silence to keep on each edge — prevents abrupt starts/stops</div>
+      </div>
+      <div id="audio-fmt-row" style="margin-top:8px">
+        <div class="fmt-row">
+          <span class="fmt-row-label">Output format:</span>
+          <button class="fmt-opt active" data-fmt="wav">WAV</button>
+          <button class="fmt-opt" data-fmt="mp3">MP3</button>
+          <button class="fmt-opt" data-fmt="flac">FLAC</button>
+          <button class="fmt-opt" data-fmt="ogg">OGG</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="view-processing" class="view">
+    <div class="card">
+      <div class="processing">
+        <div class="spinner-wrap"><div class="spinner"></div><div class="spinner-inner"></div></div>
+        <h3>Removing silence…</h3>
+        <p style="font-size:13px;color:var(--text-2)">Detecting silent regions · trimming gaps · stitching…</p>
+      </div>
+    </div>
+  </div>
+
+  <div id="view-results" class="view">
+    <div class="info-strip">
+      <div class="info-tile"><div class="info-tile-val" id="r-dur-in"  style="color:var(--amber)">--</div><div class="info-tile-lbl">Duration Before</div></div>
+      <div class="info-tile"><div class="info-tile-val" id="r-dur-out" style="color:var(--green)">--</div><div class="info-tile-lbl">Duration After</div></div>
+      <div class="info-tile"><div class="info-tile-val" id="r-removed">--</div><div class="info-tile-lbl">Time Removed</div></div>
+      <div class="info-tile"><div class="info-tile-val" id="r-runs" style="color:#818cf8">--</div><div class="info-tile-lbl">Silence Runs</div></div>
+    </div>
+    <div class="result-banner">
+      <span class="rb-icon">✂️</span>
+      <div><div class="rb-val" id="r-banner-pct">--</div><div class="rb-label" id="r-banner-label">of the audio was silence</div></div>
+    </div>
+    <div class="card">
+      <div style="margin-bottom:12px"><a id="dl-btn" class="btn btn-green" href="#" download>⬇ Download Trimmed File</a></div>
+      <div style="text-align:center"><button id="reset-btn" class="btn btn-ghost btn-sm">↩ Trim Another File</button></div>
+    </div>
+  </div>
+
+  <footer>
+    <a href="/">Noise Remover</a> · <a href="/tools/normalize">Normalizer</a> · <a href="/tools/trim">Silence Remover</a> · <a href="/tools/convert">Converter</a>
+    &nbsp;|&nbsp; 100% local · no data leaves your machine
+  </footer>
+</div>
+<div id="toast"></div>
+<input type="file" id="file-input" accept="audio/*,.wav,.mp3,.flac,.ogg,.aif,.m4a" style="display:none"/>
+<script src="/static/js/shared.js"></script>
+<script src="/static/js/trim.js"></script>
+</body>
+</html>

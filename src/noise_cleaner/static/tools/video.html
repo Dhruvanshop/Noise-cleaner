@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Free AI Video Noise Remover — Clean Background Noise from Videos | Noise Cleaner</title>
+<meta name="description" content="Remove background noise, hiss and hum from any video file for free. Uses DNS-64 AI. Keeps original video quality — only the audio is processed. MP4, MOV, MKV, AVI."/>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet"/>
+<style>
+:root{
+  --bg:#03050b;--s0:#07091280;--s1:#0a0f1e;--s2:#0e1628;--s3:#14203a;--s4:#1a2a4a;
+  --bd:rgba(255,255,255,.07);--bd-h:rgba(255,255,255,.16);
+  --text:#e8edf5;--text-2:#8fa3c0;--text-3:#3d5473;
+  --violet:#7c3aed;--indigo:#4f46e5;--blue:#2563eb;--cyan:#06b6d4;
+  --green:#10b981;--amber:#f59e0b;--red:#ef4444;--pink:#ec4899;
+  --gv:rgba(124,58,237,.4);--gi:rgba(79,70,229,.35);--gc:rgba(6,182,212,.3);
+  --gg:rgba(16,185,129,.3);--ga:rgba(245,158,11,.3);--gr:rgba(239,68,68,.3);
+  --r:12px;--r-lg:20px;--nav-h:58px;--max-w:860px;
+}
+[data-theme=light]{
+  --bg:#f1f5fb;--s1:#ffffff;--s2:#f8fafc;--s3:#e8edf6;--s4:#d8e3f0;
+  --bd:rgba(0,0,0,.08);--bd-h:rgba(0,0,0,.18);--text:#0f172a;--text-2:#475569;--text-3:#94a3b8;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI','Noto Color Emoji','Segoe UI Emoji','Apple Color Emoji',sans-serif;font-size:15px;line-height:1.6;overflow-x:hidden;min-height:100vh}
+
+/* AURORA */
+.aurora{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden}
+.aurora-orb{position:absolute;border-radius:50%;filter:blur(80px);mix-blend-mode:screen;animation:drift 18s ease-in-out infinite}
+.aurora-orb:nth-child(1){width:700px;height:700px;top:-15%;left:-10%;background:radial-gradient(circle,rgba(79,70,229,.28),transparent 70%);animation-duration:22s}
+.aurora-orb:nth-child(2){width:500px;height:500px;top:20%;right:-8%;background:radial-gradient(circle,rgba(6,182,212,.2),transparent 70%);animation-duration:17s;animation-delay:-6s}
+.aurora-orb:nth-child(3){width:600px;height:600px;bottom:-10%;left:20%;background:radial-gradient(circle,rgba(124,58,237,.18),transparent 70%);animation-duration:20s;animation-delay:-10s}
+.aurora-orb:nth-child(4){width:300px;height:300px;top:45%;left:40%;background:radial-gradient(circle,rgba(16,185,129,.14),transparent 70%);animation-duration:14s;animation-delay:-4s}
+@keyframes drift{0%,100%{transform:translate(0,0) scale(1)}33%{transform:translate(40px,-30px) scale(1.08)}66%{transform:translate(-30px,25px) scale(.94)}}
+.aurora::after{content:'';position:absolute;inset:0;background-image:radial-gradient(circle,rgba(99,102,241,.1) 1px,transparent 1px);background-size:32px 32px}
+
+/* NAV */
+.nav{position:sticky;top:0;z-index:200;background:rgba(7,9,18,.8);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-bottom:1px solid var(--bd);display:flex;align-items:center;gap:2px;padding:0 20px;height:var(--nav-h);overflow-x:auto;scrollbar-width:none}
+.nav::-webkit-scrollbar{display:none}
+.nav a{display:flex;align-items:center;gap:6px;padding:7px 13px;border-radius:9px;font-size:13px;font-weight:500;color:var(--text-2);text-decoration:none;white-space:nowrap;transition:all .15s}
+.nav a:hover{background:rgba(255,255,255,.06);color:var(--text)}
+.nav a.active{background:rgba(79,70,229,.18);color:#818cf8}
+.nav-sp{flex:1}
+.nav-icon-btn{width:36px;height:36px;border-radius:9px;background:rgba(255,255,255,.05);border:1px solid var(--bd);color:var(--text-2);font-size:16px;cursor:pointer;display:grid;place-items:center;transition:all .15s;flex-shrink:0}
+.nav-icon-btn:hover{border-color:var(--indigo);color:#818cf8}
+
+/* LAYOUT */
+.wrap{position:relative;z-index:1;max-width:var(--max-w);margin:0 auto;padding:0 20px 80px}
+
+/* PAGE HEADER */
+.page-header{padding:40px 0 28px;display:flex;align-items:flex-start;justify-content:space-between;gap:16px;flex-wrap:wrap}
+.ph-left{display:flex;align-items:center;gap:16px}
+.ph-icon{width:52px;height:52px;border-radius:16px;display:grid;place-items:center;font-size:26px;flex-shrink:0}
+.ph-title{font-size:clamp(20px,4vw,28px);font-weight:800;letter-spacing:-.04em;background:linear-gradient(135deg,#c4b5fd,#818cf8 40%,#67e8f9 80%);-webkit-background-clip:text;background-clip:text;color:transparent}
+.ph-sub{font-size:13px;color:var(--text-2);margin-top:3px}
+.ai-pill{display:inline-flex;align-items:center;gap:6px;background:rgba(16,185,129,.12);border:1px solid rgba(16,185,129,.3);color:var(--green);font-size:12px;font-weight:600;padding:5px 13px;border-radius:999px;white-space:nowrap}
+
+/* MODE PILLS */
+.mode-pills{display:flex;gap:8px;margin-bottom:20px}
+.mode-pill{padding:8px 20px;border-radius:999px;font-size:13px;font-weight:600;cursor:pointer;border:2px solid var(--bd);background:var(--s1);color:var(--text-2);transition:all .2s;display:flex;align-items:center;gap:7px}
+.mode-pill.active.audio{border-color:var(--indigo);background:rgba(79,70,229,.12);color:#818cf8;box-shadow:0 0 20px rgba(79,70,229,.2)}
+.mode-pill.active.video{border-color:var(--cyan);background:rgba(6,182,212,.12);color:var(--cyan);box-shadow:0 0 20px rgba(6,182,212,.2)}
+.mode-pill:not(.active):hover{border-color:var(--bd-h);color:var(--text)}
+
+/* CARD */
+.card{background:var(--s1);border:1px solid var(--bd);border-radius:var(--r-lg);padding:26px;margin-bottom:16px;box-shadow:0 4px 32px rgba(0,0,0,.35);backdrop-filter:blur(20px)}
+.card-title{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--text-3);margin-bottom:16px;display:flex;align-items:center;gap:8px}
+
+/* DROPZONE */
+.dropzone{border:2px dashed var(--bd);border-radius:var(--r);padding:52px 28px;text-align:center;cursor:pointer;transition:all .25s;position:relative;overflow:hidden}
+.dropzone::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 70% 60% at 50% 100%,rgba(79,70,229,.08),transparent);opacity:0;transition:opacity .25s}
+.dropzone:hover::before,.dropzone.over::before{opacity:1}
+.dropzone:hover,.dropzone.over{border-color:var(--indigo);box-shadow:0 0 60px rgba(79,70,229,.2)}
+.dropzone.video-dz:hover,.dropzone.video-dz.over{border-color:var(--cyan);box-shadow:0 0 60px rgba(6,182,212,.2)}
+.dropzone.video-dz::before{background:radial-gradient(ellipse 70% 60% at 50% 100%,rgba(6,182,212,.08),transparent)}
+.dz-icon{font-size:52px;display:block;margin-bottom:14px;transition:transform .25s;position:relative;z-index:1}
+.dropzone:hover .dz-icon,.dropzone.over .dz-icon{transform:scale(1.12) translateY(-4px)}
+.dropzone h2{font-size:19px;font-weight:700;margin-bottom:6px;position:relative;z-index:1}
+.dropzone p{color:var(--text-2);font-size:13px;position:relative;z-index:1}
+.fmt-tags{display:flex;gap:7px;justify-content:center;flex-wrap:wrap;margin-top:12px;position:relative;z-index:1}
+.fmt-tag{font-size:11px;padding:3px 10px;border-radius:20px;background:var(--s3);border:1px solid var(--bd);color:var(--text-2)}
+
+/* BUTTONS */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:11px 22px;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer;border:none;text-decoration:none;transition:all .2s;white-space:nowrap}
+.btn-primary{background:linear-gradient(135deg,var(--indigo),var(--violet));color:#fff;box-shadow:0 4px 18px var(--gi)}
+.btn-primary:hover{transform:translateY(-2px);box-shadow:0 8px 28px var(--gi)}
+.btn-green{background:linear-gradient(135deg,#059669,var(--green));color:#fff;box-shadow:0 4px 18px var(--gg);width:100%;padding:15px 22px;font-size:15px;font-weight:700;border-radius:12px}
+.btn-green:hover{transform:translateY(-2px);box-shadow:0 8px 28px var(--gg)}
+.btn-ghost{background:rgba(255,255,255,.05);color:var(--text-2);border:1px solid var(--bd)}
+.btn-ghost:hover{border-color:var(--indigo);color:var(--text);background:rgba(79,70,229,.08)}
+.btn-sm{padding:8px 16px;font-size:13px;border-radius:9px}
+
+/* SETTINGS */
+.setting-row{margin-bottom:16px}
+.setting-row label{display:flex;justify-content:space-between;margin-bottom:7px;font-size:13px;font-weight:500}
+.sv{color:#818cf8;font-weight:700}
+input[type=range]{width:100%;accent-color:var(--indigo);height:5px;border-radius:5px}
+.setting-hint{font-size:11px;color:var(--text-3);margin-top:4px}
+select{background:var(--s2);border:1px solid var(--bd);color:var(--text);padding:8px 12px;border-radius:9px;font-size:13px;width:100%;outline:none;transition:border-color .15s}
+select:focus{border-color:var(--indigo)}
+
+/* PRESETS */
+.presets{display:flex;gap:8px;margin-bottom:18px;flex-wrap:wrap}
+.preset-btn{padding:7px 16px;border-radius:10px;background:var(--s2);border:1px solid var(--bd);color:var(--text-2);font-size:13px;cursor:pointer;transition:all .15s;text-align:center;line-height:1.4}
+.preset-btn.active,.preset-btn:hover{border-color:var(--indigo);color:#818cf8;background:rgba(79,70,229,.1)}
+
+/* FORMAT OPTIONS */
+.fmt-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.fmt-row-label{font-size:12px;color:var(--text-2);flex-shrink:0}
+.fmt-opt{padding:6px 15px;border-radius:8px;font-size:12px;font-weight:600;background:var(--s2);border:1px solid var(--bd);color:var(--text-2);cursor:pointer;transition:all .15s}
+.fmt-opt.active{border-color:var(--indigo);background:rgba(79,70,229,.1);color:#818cf8}
+
+/* FORMAT GRID (converter) */
+.fmt-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:18px}
+.fmt-card{padding:18px 12px;background:var(--s2);border:2px solid var(--bd);border-radius:var(--r);cursor:pointer;text-align:center;transition:all .18s}
+.fmt-card:hover{border-color:var(--bd-h)}
+.fmt-card.active{border-color:var(--indigo);background:rgba(79,70,229,.1)}
+.fmt-card-name{font-size:15px;font-weight:800;letter-spacing:.04em}
+.fmt-card-desc{font-size:10px;color:var(--text-3);margin-top:4px}
+
+/* INFO TILES */
+.info-strip{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:16px}
+.info-tile{background:var(--s1);border:1px solid var(--bd);border-radius:var(--r);padding:16px}
+.info-tile-val{font-size:22px;font-weight:800;letter-spacing:-.04em}
+.info-tile-lbl{font-size:11px;color:var(--text-3);margin-top:3px;text-transform:uppercase;letter-spacing:.05em}
+
+/* SPINNER */
+.spinner-wrap{position:relative;width:88px;height:88px;margin:0 auto 22px}
+.spinner,.spinner-inner{position:absolute;inset:0;border-radius:50%;border:3px solid transparent}
+.spinner{border-top-color:var(--indigo);animation:spin .8s linear infinite}
+.spinner-inner{inset:10px;border-top-color:var(--cyan);animation:spin 1.5s linear infinite reverse}
+@keyframes spin{to{transform:rotate(360deg)}}
+.processing{text-align:center;padding:48px 0}
+.processing h3{font-size:19px;font-weight:700;margin-bottom:8px}
+
+/* BANNER */
+.result-banner{display:flex;align-items:flex-start;gap:14px;padding:18px 22px;background:rgba(16,185,129,.08);border:1px solid rgba(16,185,129,.25);border-radius:var(--r);margin-bottom:16px;position:relative;overflow:hidden}
+.result-banner::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 80% 60% at 0% 50%,rgba(16,185,129,.12),transparent)}
+.rb-icon{font-size:32px;line-height:1;position:relative;z-index:1}
+.rb-val{font-size:32px;font-weight:800;letter-spacing:-1px;color:var(--green);position:relative;z-index:1}
+.rb-label{font-size:13px;color:var(--text-2);margin-top:2px;position:relative;z-index:1}
+
+/* VIEWS */
+.view{display:none}.view.active{display:block}
+
+/* WARN BANNER */
+.warn-banner{display:flex;gap:12px;padding:14px 18px;background:rgba(245,158,11,.1);border:1px solid rgba(245,158,11,.25);border-radius:var(--r);margin-bottom:16px;font-size:13px;color:var(--text-2)}
+
+/* TOAST */
+#toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(60px);background:var(--s1);border:1px solid var(--bd);border-radius:10px;padding:11px 22px;font-size:13px;opacity:0;transition:all .3s;z-index:999;pointer-events:none;white-space:nowrap;backdrop-filter:blur(20px)}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+#toast.success{border-color:var(--green);color:var(--green)}
+#toast.error{border-color:var(--red);color:var(--red)}
+#toast.warning{border-color:var(--amber);color:var(--amber)}
+
+/* FOOTER */
+footer{text-align:center;padding:26px 0;font-size:12px;color:var(--text-3);border-top:1px solid var(--bd);margin-top:20px}
+footer a{color:var(--text-3);text-decoration:none}
+footer a:hover{color:var(--text-2)}
+
+@media(max-width:640px){.wrap{padding:0 14px 60px}.info-strip{grid-template-columns:repeat(2,1fr)}.fmt-grid{grid-template-columns:repeat(3,1fr)}.page-header{padding:24px 0 20px}}
+
+.ph-icon{background:linear-gradient(135deg,var(--indigo),var(--violet));box-shadow:0 0 28px var(--gi)}
+
+/* ENGINE CARDS */
+.engine-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:14px}
+.engine-card{padding:18px;border-radius:var(--r);border:2px solid var(--bd);background:var(--s2);cursor:pointer;transition:all .18s;position:relative;text-align:left}
+.engine-card.active{border-color:var(--indigo);background:rgba(79,70,229,.08);box-shadow:0 0 0 1px rgba(79,70,229,.3)}
+.engine-card:hover:not(.active){border-color:var(--bd-h)}
+.engine-card[disabled]{opacity:.4;cursor:not-allowed}
+.ec-name{font-size:14px;font-weight:700;margin-bottom:4px}
+.ec-desc{font-size:12px;color:var(--text-2)}
+.ec-badge{position:absolute;top:10px;right:10px;font-size:9px;font-weight:700;padding:3px 7px;border-radius:20px;text-transform:uppercase;letter-spacing:.06em;background:rgba(16,185,129,.15);border:1px solid rgba(16,185,129,.3);color:var(--green)}
+
+/* VIDEO PLAYER */
+.video-wrap{border-radius:var(--r);overflow:hidden;background:#000;margin-bottom:14px;border:1px solid var(--bd)}
+.video-wrap video{width:100%;display:block;max-height:400px;object-fit:contain}
+
+/* PROC BAR */
+.proc-bar-track{background:var(--s3);border-radius:999px;height:4px;margin-top:16px;overflow:hidden}
+.proc-bar{height:100%;background:linear-gradient(90deg,var(--indigo),var(--cyan));border-radius:999px;width:0%;animation:progress-indeterminate 1.8s ease-in-out infinite}
+@keyframes progress-indeterminate{0%{width:0%;margin-left:0}50%{width:60%}100%{width:0%;margin-left:100%}}
+</style>
+</head>
+<body>
+<div class="aurora" aria-hidden="true">
+  <div class="aurora-orb"></div><div class="aurora-orb"></div>
+  <div class="aurora-orb"></div><div class="aurora-orb"></div>
+</div>
+<nav class="nav">
+  <a href="/">🔇 Noise Remover</a>
+  <a href="/tools/normalize">📊 Normalizer</a>
+  <a href="/tools/trim">✂️ Silence Remover</a>
+  <a href="/tools/convert">🔄 Converter</a>
+  <a href="/tools/stems">🎸 Stem Splitter</a>
+  <a href="/tools/caption">💬 Captions</a>
+  <a href="/tools/repair">🔧 Repair</a>
+  <a href="/tools/dereverberate">🏠 De-Reverb</a>
+  <a href="/tools/analyze">🎵 Analyzer</a>
+  <a href="/tools/batch">📦 Batch</a>
+  <a href="/tools/remix">🎛 Remixer</a>
+  <a href="/tools/pipeline">⛓ Pipeline</a>
+  <div class="nav-sp"></div>
+  <button class="nav-icon-btn" id="theme-toggle" title="Toggle theme">🌙</button>
+</nav>
+<div class="wrap">
+  <div class="page-header">
+    <div class="ph-left">
+      <div class="ph-icon">🎬</div>
+      <div>
+        <div class="ph-title">Video Noise Remover</div>
+        <div class="ph-sub">Remove hiss, hum, background noise from video · original quality preserved · MP4, MOV, MKV, AVI</div>
+      </div>
+    </div>
+    <span class="ai-pill">🤖 DNS-64 AI</span>
+  </div>
+
+  <!-- UPLOAD VIEW -->
+  <div id="view-upload" class="view active">
+    <div class="card">
+      <div id="dropzone" class="dropzone video-dz">
+        <span class="dz-icon">🎬</span>
+        <h2>Drop your video file here</h2>
+        <p>Drag & drop or click to browse · any video format</p>
+        <div class="fmt-tags">
+          <span class="fmt-tag">MP4</span><span class="fmt-tag">MOV</span>
+          <span class="fmt-tag">MKV</span><span class="fmt-tag">AVI</span><span class="fmt-tag">WebM</span>
+        </div>
+        <div style="margin-top:16px;position:relative;z-index:1">
+          <button class="btn btn-primary" id="browse-btn">Browse file</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">🤖 AI Engine</div>
+      <div class="engine-grid">
+        <div class="engine-card active" data-be="auto">
+          <div class="ec-badge">recommended</div>
+          <div class="ec-name">Auto Select</div>
+          <div class="ec-desc">Uses DNS-64 AI if available, falls back to spectral algorithm</div>
+        </div>
+        <div class="engine-card" data-be="ai" id="be-ai">
+          <div class="ec-name">DNS-64 AI Only</div>
+          <div class="ec-desc">Facebook's deep learning model — best results on speech</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PROCESSING VIEW -->
+  <div id="view-processing" class="view">
+    <div class="card">
+      <div class="processing">
+        <div class="spinner-wrap"><div class="spinner"></div><div class="spinner-inner"></div></div>
+        <h3>Denoising video…</h3>
+        <p style="font-size:13px;color:var(--text-2)">Extracting audio · running AI model · remuxing video…</p>
+        <div class="proc-bar-track"><div class="proc-bar"></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- RESULTS VIEW -->
+  <div id="view-results" class="view">
+    <div class="info-strip">
+      <div class="info-tile"><div class="info-tile-val" id="r-duration">--</div><div class="info-tile-lbl">Duration</div></div>
+      <div class="info-tile"><div class="info-tile-val" id="r-res" style="color:#818cf8">--</div><div class="info-tile-lbl">Resolution</div></div>
+      <div class="info-tile"><div class="info-tile-val" id="r-fps">--</div><div class="info-tile-lbl">FPS</div></div>
+      <div class="info-tile"><div class="info-tile-val" id="r-time" style="color:var(--green)">--</div><div class="info-tile-lbl">Process Time</div></div>
+    </div>
+
+    <div class="result-banner">
+      <span class="rb-icon">✅</span>
+      <div><div class="rb-val" id="r-size-saved">--</div><div class="rb-label">Video with clean audio ready</div></div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">🎬 Preview</div>
+      <div class="video-wrap"><video id="video-player" controls preload="metadata"></video></div>
+      <div style="margin-bottom:12px"><a id="dl-btn" class="btn btn-green" href="#" download="denoised_video.mp4">⬇ Download Denoised Video</a></div>
+      <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
+        <a id="caption-link" class="btn btn-ghost btn-sm" href="/tools/caption">💬 Add Captions</a>
+        <button id="reset-btn" class="btn btn-ghost btn-sm">↩ Process Another Video</button>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    <a href="/">Noise Remover</a> · <a href="/tools/stems">Stem Splitter</a> · <a href="/tools/caption">Captions</a>
+    &nbsp;|&nbsp; 100% local · no data leaves your machine
+  </footer>
+</div>
+
+<div id="toast"></div>
+<input type="file" id="file-input" accept="video/*,.mp4,.mov,.mkv,.avi,.webm" style="display:none"/>
+
+<script>
+const $=id=>document.getElementById(id)
+
+const THEME_KEY='nc_theme'
+function applyTheme(t){document.documentElement.dataset.theme=t;$('theme-toggle').textContent=t==='dark'?'🌙':'☀️';localStorage.setItem(THEME_KEY,t)}
+applyTheme(localStorage.getItem(THEME_KEY)||'dark')
+$('theme-toggle').addEventListener('click',()=>applyTheme(document.documentElement.dataset.theme==='dark'?'light':'dark'))
+
+
+let _toastTimer
+function toast(msg,type='info',ms=3500){
+  const el=$('toast');el.textContent=msg;el.className=`toast show ${type}`
+  clearTimeout(_toastTimer);_toastTimer=setTimeout(()=>el.classList.remove('show'),ms)
+}
+
+
+function showView(n){['upload','processing','results'].forEach(k=>$('view-'+k).classList.toggle('active',k===n))}
+
+
+let _be='auto'
+
+// Check AI
+fetch('/api/capabilities').then(r=>r.json()).then(d=>{
+  if(!d.ai){const card=$('[data-be="ai"]');if(card){card.disabled=true;card.style.opacity='.4';card.style.cursor='not-allowed'}}
+}).catch(()=>{})
+
+document.querySelectorAll('.engine-card').forEach(c=>{
+  c.addEventListener('click',()=>{
+    if(c.disabled||c.hasAttribute('disabled'))return
+    document.querySelectorAll('.engine-card').forEach(x=>x.classList.remove('active'))
+    c.classList.add('active');_be=c.dataset.be
+  })
+})
+
+const dz=$('dropzone'),fi=$('file-input')
+dz.addEventListener('dragenter',e=>{e.preventDefault();dz.classList.add('over')})
+dz.addEventListener('dragover',e=>{e.preventDefault();dz.classList.add('over')})
+dz.addEventListener('dragleave',()=>dz.classList.remove('over'))
+dz.addEventListener('drop',e=>{e.preventDefault();dz.classList.remove('over');if(e.dataTransfer.files[0])handleFile(e.dataTransfer.files[0])})
+dz.addEventListener('click',e=>{if(e.target===$('browse-btn')||$('browse-btn').contains(e.target))return;fi.click()})
+$('browse-btn').addEventListener('click',e=>{e.stopPropagation();fi.click()})
+fi.addEventListener('change',()=>{if(fi.files[0])handleFile(fi.files[0])})
+
+async function handleFile(file){
+  const isVideo=/\.(mp4|mov|mkv|avi|webm)$/i.test(file.name)||file.type.startsWith('video/')
+  if(!isVideo){toast('⚠ Please upload a video file','warning');return}
+  showView('processing')
+  const fd=new FormData()
+  fd.append('file',file)
+  fd.append('backend',_be)
+  try{
+    const res=await fetch('/api/video/denoise',{method:'POST',body:fd})
+    if(!res.ok){const e=await res.json().catch(()=>({detail:'Server error'}));throw new Error(e.detail||'Failed')}
+    const data=await res.json()
+    $('r-duration').textContent=Math.round(data.duration)+'s'
+    $('r-res').textContent=(data.width&&data.height)?data.width+'×'+data.height:'--'
+    $('r-fps').textContent=data.fps?Math.round(data.fps)+'fps':'--'
+    $('r-time').textContent=data.processing_time+'s'
+    const saved=data.input_size-data.output_size
+    $('r-size-saved').textContent=saved>0?(saved/1048576).toFixed(1)+' MB saved':'Clean!'
+    $('video-player').src=data.stream_url
+    $('dl-btn').href=data.download_url
+    showView('results');toast('✅ Video denoised!','success')
+  }catch(err){showView('upload');toast('❌ '+err.message,'error',5000)}
+}
+
+$('reset-btn').addEventListener('click',()=>{fi.value='';$('video-player').src='';showView('upload')})
+</script>
+</body>
+</html>

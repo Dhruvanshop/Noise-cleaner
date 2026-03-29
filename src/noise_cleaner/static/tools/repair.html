@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Audio Repair — Hum Removal &amp; Click Fix | Noise Cleaner</title>
+<meta name="description" content="Remove 50/60Hz hum, buzz, and click/pop artifacts from audio. Free, local, private."/>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="/static/css/base.css"/>
+<style>
+.ph-icon { background:linear-gradient(135deg,#f59e0b,#d97706); box-shadow:0 0 28px #d9770680; }
+.toggle-row { display:flex; align-items:center; gap:10px; margin:10px 0; }
+.toggle-row label { font-size:14px; color:var(--text-2); cursor:pointer; }
+input[type=checkbox] { width:16px; height:16px; accent-color:var(--accent); cursor:pointer; }
+.collapsible { overflow:hidden; transition:max-height .25s; }
+</style>
+</head>
+<body>
+<div class="aurora" aria-hidden="true">
+  <div class="aurora-orb"></div><div class="aurora-orb"></div>
+  <div class="aurora-orb"></div><div class="aurora-orb"></div>
+</div>
+<nav class="nav">
+  <a href="/">&#x1F507; Noise Remover</a>
+  <a href="/tools/normalize">&#x1F4CA; Normalizer</a>
+  <a href="/tools/trim">&#x2702;&#xFE0F; Silence Remover</a>
+  <a href="/tools/convert">&#x1F504; Converter</a>
+  <a href="/tools/stems">&#x1F3B8; Stem Splitter</a>
+  <a href="/tools/caption">&#x1F4AC; Captions</a>
+  <a href="/tools/repair" class="active">&#x1F527; Repair</a>
+  <a href="/tools/dereverberate">&#x1F3E0; De-Reverb</a>
+  <a href="/tools/analyze">&#x1F3B5; Analyzer</a>
+  <a href="/tools/batch">&#x1F4E6; Batch</a>
+  <a href="/tools/remix">&#x1F39B; Remixer</a>
+  <a href="/tools/pipeline">&#x26D3; Pipeline</a>
+  <div class="nav-sp"></div>
+  <button class="nav-icon-btn" id="theme-toggle" title="Toggle theme">&#x1F319;</button>
+</nav>
+<div class="wrap">
+  <div class="page-header">
+    <div class="ph-left">
+      <div class="ph-icon">&#x1F527;</div>
+      <div>
+        <div class="ph-title">Audio Repair</div>
+        <div class="ph-sub">Remove 50/60 Hz hum &amp; buzz · Fix click and pop artifacts · pure scipy</div>
+      </div>
+    </div>
+    <span class="ai-pill">&#x26A1; scipy Engine</span>
+  </div>
+
+  <!-- DROP VIEW -->
+  <div id="view-drop" class="view active">
+    <div class="card">
+      <div id="dz" class="dropzone">
+        <span class="dz-icon">&#x1F527;</span>
+        <h2>Drop your audio file here</h2>
+        <p>Drag &amp; drop or click &middot; WAV, MP3, FLAC, OGG, M4A</p>
+        <div class="fmt-tags">
+          <span class="fmt-tag">WAV</span><span class="fmt-tag">MP3</span>
+          <span class="fmt-tag">FLAC</span><span class="fmt-tag">OGG</span>
+        </div>
+        <div style="margin-top:16px;position:relative;z-index:1">
+          <button class="btn btn-primary" id="browseBtn">Browse file</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">&#x1F527; Repair Settings</div>
+
+      <div class="toggle-row">
+        <input type="checkbox" id="removeHumToggle" checked/>
+        <label for="removeHumToggle">Remove Hum / Buzz</label>
+      </div>
+      <div id="humControls">
+        <div class="setting-row">
+          <label><span>Hum Frequency</span></label>
+          <select id="humFreqSelect" class="settings-select" style="margin-top:6px;width:100%;padding:8px;border-radius:8px;background:var(--bg-2);border:1px solid var(--bdr);color:var(--text)">
+            <option value="0">Auto-detect (50 or 60 Hz)</option>
+            <option value="50">50 Hz (Europe / Asia)</option>
+            <option value="60">60 Hz (North America / Japan)</option>
+          </select>
+          <div class="setting-hint">Auto-detect picks the louder fundamental.</div>
+        </div>
+        <div class="setting-row">
+          <label><span>Harmonics</span><span class="sv" id="humHarmonicsVal">4</span></label>
+          <input type="range" id="humHarmonicsSlider" min="1" max="8" step="1" value="4"/>
+          <div class="setting-hint">Number of harmonic multiples to notch (e.g. 50, 100, 150 Hz…)</div>
+        </div>
+        <div class="setting-row">
+          <label><span>Filter Strength</span><span class="sv" id="humStrengthVal">100%</span></label>
+          <input type="range" id="humStrengthSlider" min="0.1" max="1.0" step="0.05" value="1.0"/>
+          <div class="setting-hint">100% = maximum notch depth. Reduce if speech sounds thin.</div>
+        </div>
+      </div>
+
+      <hr style="border:none;border-top:1px solid var(--bdr);margin:16px 0"/>
+
+      <div class="toggle-row">
+        <input type="checkbox" id="removeClicksToggle" checked/>
+        <label for="removeClicksToggle">Repair Clicks &amp; Pops</label>
+      </div>
+      <div class="setting-row">
+        <label><span>Detection Sensitivity</span><span class="sv" id="clickThresholdVal">6&#x3C3;</span></label>
+        <input type="range" id="clickThresholdSlider" min="2" max="12" step="0.5" value="6"/>
+        <div class="setting-hint">Lower = detect more clicks (may affect transients). 6&sigma; recommended.</div>
+      </div>
+
+      <hr style="border:none;border-top:1px solid var(--bdr);margin:16px 0"/>
+
+      <div class="card-title">Output Format</div>
+      <div class="fmt-row">
+        <select id="fmtSelect" style="padding:8px 14px;border-radius:8px;background:var(--bg-2);border:1px solid var(--bdr);color:var(--text);font-size:13px">
+          <option value="wav">WAV</option>
+          <option value="flac">FLAC</option>
+          <option value="mp3">MP3</option>
+          <option value="ogg">OGG</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <!-- PROCESSING VIEW -->
+  <div id="view-processing" class="view">
+    <div class="card">
+      <div class="processing">
+        <div class="spinner-wrap"><div class="spinner"></div><div class="spinner-inner"></div></div>
+        <h3>Repairing audio…</h3>
+        <p style="font-size:13px;color:var(--text-2)">Detecting hum &middot; notch filtering &middot; click interpolation…</p>
+        <p style="font-size:12px;color:var(--text-3)" id="procTimer">0:00</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- RESULT VIEW -->
+  <div id="view-result" class="view">
+    <div class="info-strip">
+      <div class="info-tile"><div class="info-tile-val" id="resHumFreq" style="color:var(--amber)">—</div><div class="info-tile-lbl">Hum Removed</div></div>
+      <div class="info-tile"><div class="info-tile-val" id="resClicks" style="color:var(--accent)">—</div><div class="info-tile-lbl">Clicks Fixed</div></div>
+      <div class="info-tile"><div class="info-tile-val" id="resRmsBefore" style="color:var(--text-2)">—</div><div class="info-tile-lbl">RMS Before</div></div>
+      <div class="info-tile"><div class="info-tile-val" id="resRmsAfter" style="color:var(--green)">—</div><div class="info-tile-lbl">RMS After</div></div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">&#x1F50A; Before &amp; After</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:8px">
+        <div>
+          <p style="font-size:11px;color:var(--text-3);text-transform:uppercase;letter-spacing:.06em;margin:0 0 6px">Original</p>
+          <audio id="audioOriginal" controls style="width:100%"></audio>
+        </div>
+        <div>
+          <p style="font-size:11px;color:var(--accent);text-transform:uppercase;letter-spacing:.06em;margin:0 0 6px">Repaired ✓</p>
+          <audio id="audioProcessed" controls style="width:100%"></audio>
+        </div>
+      </div>
+    </div>
+
+    <div class="result-banner">
+      <span class="rb-icon">&#x2705;</span>
+      <div>
+        <div class="rb-val" id="resFilename">—</div>
+        <div class="rb-label">
+          <span id="resDuration">—</span> &middot;
+          <span id="resSamplerate">—</span> &middot;
+          Processed in <span id="resProcTime">—</span>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div style="margin-bottom:12px">
+        <button class="btn btn-green" id="downloadBtn">&#x2B07; Download Repaired File</button>
+      </div>
+      <div style="text-align:center">
+        <button id="resetBtn" class="btn btn-ghost btn-sm">&#x21A9; Repair Another File</button>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    <a href="/">Noise Remover</a> &middot; <a href="/tools/normalize">Normalizer</a> &middot;
+    <a href="/tools/trim">Silence Remover</a> &middot; <a href="/tools/repair">Repair</a> &middot;
+    <a href="/tools/dereverberate">De-Reverb</a>
+    &nbsp;|&nbsp; 100% local &middot; no data leaves your machine
+  </footer>
+</div>
+<div id="toast"></div>
+<input type="file" id="fileInput" accept="audio/*,.wav,.flac,.ogg,.aif,.mp3,.m4a" style="display:none"/>
+<script src="/static/js/shared.js"></script>
+<script src="/static/js/repair.js"></script>
+</body>
+</html>

@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Audio & Video Loudness Normalizer — Free LUFS Normalization | Noise Cleaner</title>
+<meta name="description" content="Normalize audio or video loudness to -16 LUFS (podcast), -14 LUFS (streaming), or -23 LUFS (broadcast). Free, local, private."/>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="/static/css/base.css"/>
+<style>
+.ph-icon { background:linear-gradient(135deg,#10b981,#059669); box-shadow:0 0 28px var(--gg); }
+</style>
+</head>
+<body>
+<div class="aurora" aria-hidden="true">
+  <div class="aurora-orb"></div><div class="aurora-orb"></div>
+  <div class="aurora-orb"></div><div class="aurora-orb"></div>
+</div>
+<nav class="nav">
+  <a href="/">🔇 Noise Remover</a>
+  <a href="/tools/normalize" class="active">📊 Normalizer</a>
+  <a href="/tools/trim">✂️ Silence Remover</a>
+  <a href="/tools/convert">🔄 Converter</a>
+  <a href="/tools/stems">🎸 Stem Splitter</a>
+  <a href="/tools/caption">💬 Captions</a>
+  <a href="/tools/repair">🔧 Repair</a>
+  <a href="/tools/dereverberate">🏠 De-Reverb</a>
+  <a href="/tools/analyze">🎵 Analyzer</a>
+  <a href="/tools/batch">📦 Batch</a>
+  <a href="/tools/remix">🎛 Remixer</a>
+  <a href="/tools/pipeline">⛓ Pipeline</a>
+  <div class="nav-sp"></div>
+  <button class="nav-icon-btn" id="theme-toggle" title="Toggle theme">🌙</button>
+</nav>
+<div class="wrap">
+  <div class="page-header">
+    <div class="ph-left">
+      <div class="ph-icon">📊</div>
+      <div>
+        <div class="ph-title">Loudness Normalizer</div>
+        <div class="ph-sub">ITU-R BS.1770 · EBU R128 · podcast, streaming, broadcast · audio &amp; video</div>
+      </div>
+    </div>
+    <span class="ai-pill">⚡ FFmpeg Engine</span>
+  </div>
+
+  <div class="mode-pills">
+    <button class="mode-pill active audio" id="pill-audio" onclick="setMode('audio')">🎵 Audio File</button>
+    <button class="mode-pill video"        id="pill-video" onclick="setMode('video')">🎬 Video File</button>
+  </div>
+
+  <div id="view-upload" class="view active">
+    <div class="card">
+      <div id="dropzone" class="dropzone">
+        <span class="dz-icon" id="dz-icon">📂</span>
+        <h2 id="dz-title">Drop your audio file here</h2>
+        <p id="dz-sub">Drag &amp; drop or click · WAV, MP3, FLAC, OGG, M4A</p>
+        <div class="fmt-tags" id="dz-tags">
+          <span class="fmt-tag">WAV</span><span class="fmt-tag">MP3</span>
+          <span class="fmt-tag">FLAC</span><span class="fmt-tag">OGG</span><span class="fmt-tag">M4A</span>
+        </div>
+        <div style="margin-top:16px;position:relative;z-index:1">
+          <button class="btn btn-primary" id="browse-btn">Browse file</button>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">🎯 Target Standard</div>
+      <div class="presets">
+        <button class="preset-btn" data-lufs="-9">📱 TikTok / Reels<br><small style="font-weight:400;color:var(--text-3)">−9 LUFS</small></button>
+        <button class="preset-btn" data-lufs="-14">🎵 Spotify / YouTube<br><small style="font-weight:400;color:var(--text-3)">−14 LUFS</small></button>
+        <button class="preset-btn active" data-lufs="-16">🎙 Podcast Standard<br><small style="font-weight:400;color:var(--text-3)">−16 LUFS</small></button>
+        <button class="preset-btn" data-lufs="-23">📡 Broadcast EBU R128<br><small style="font-weight:400;color:var(--text-3)">−23 LUFS</small></button>
+      </div>
+      <div class="setting-row">
+        <label><span>Target Loudness</span><span class="sv" id="v-lufs">−16.0 LUFS</span></label>
+        <input type="range" id="s-lufs" min="-32" max="-5" step="0.5" value="-16"/>
+        <div class="setting-hint">Integrated loudness target. Lower = quieter, higher = louder.</div>
+      </div>
+      <div class="setting-row">
+        <label><span>True Peak Ceiling</span><span class="sv" id="v-peak">−1.0 dBFS</span></label>
+        <input type="range" id="s-peak" min="-6" max="-0.1" step="0.1" value="-1"/>
+        <div class="setting-hint">Maximum true peak. −1 dBFS is the broadcast/podcast standard.</div>
+      </div>
+      <div id="audio-fmt-row" style="margin-top:18px">
+        <div class="card-title">Output Format</div>
+        <div class="fmt-row">
+          <button class="fmt-opt active" data-fmt="wav">WAV</button>
+          <button class="fmt-opt" data-fmt="flac">FLAC</button>
+          <button class="fmt-opt" data-fmt="mp3">MP3</button>
+          <button class="fmt-opt" data-fmt="ogg">OGG</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="view-processing" class="view">
+    <div class="card">
+      <div class="processing">
+        <div class="spinner-wrap"><div class="spinner"></div><div class="spinner-inner"></div></div>
+        <h3>Normalizing loudness…</h3>
+        <p style="font-size:13px;color:var(--text-2)">Measuring LUFS · applying gain · checking true peak…</p>
+      </div>
+    </div>
+  </div>
+
+  <div id="view-results" class="view">
+    <div class="info-strip">
+      <div class="info-tile"><div class="info-tile-val" id="r-lufs-in" style="color:var(--amber)">--</div><div class="info-tile-lbl">LUFS Before</div></div>
+      <div class="info-tile"><div class="info-tile-val" id="r-lufs-out" style="color:var(--green)">--</div><div class="info-tile-lbl">LUFS After</div></div>
+      <div class="info-tile"><div class="info-tile-val" id="r-gain">--</div><div class="info-tile-lbl">Gain Applied</div></div>
+      <div class="info-tile"><div class="info-tile-val" id="r-peak">--</div><div class="info-tile-lbl">True Peak</div></div>
+    </div>
+    <div class="result-banner">
+      <span class="rb-icon">✅</span>
+      <div><div class="rb-val" id="r-banner-lufs">--</div><div class="rb-label" id="r-banner-label">Loudness normalized</div></div>
+    </div>
+    <div class="card">
+      <div style="margin-bottom:12px"><a id="dl-btn" class="btn btn-green" href="#" download>⬇ Download Normalized File</a></div>
+      <div style="text-align:center"><button id="reset-btn" class="btn btn-ghost btn-sm">↩ Normalize Another File</button></div>
+    </div>
+  </div>
+
+  <footer>
+    <a href="/">Noise Remover</a> · <a href="/tools/normalize">Normalizer</a> · <a href="/tools/trim">Silence Remover</a> · <a href="/tools/convert">Converter</a> · <a href="/tools/stems">Stem Splitter</a>
+    &nbsp;|&nbsp; 100% local · no data leaves your machine
+  </footer>
+</div>
+<div id="toast"></div>
+<input type="file" id="file-input" accept="audio/*,.wav,.flac,.ogg,.aif,.mp3,.m4a" style="display:none"/>
+<script src="/static/js/shared.js"></script>
+<script src="/static/js/normalize.js"></script>
+</body>
+</html>

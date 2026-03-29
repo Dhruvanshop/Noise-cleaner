@@ -1,0 +1,39 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "noise-cleaner"
+version = "0.1.0"
+description = "CLI tool for speech-oriented audio denoising using spectral gating"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+  "numpy>=1.24",
+  "scipy>=1.10",
+  "soundfile>=0.12",
+  "fastapi>=0.111",
+  "uvicorn[standard]>=0.29",
+  "python-multipart>=0.0.9",
+]
+
+[project.optional-dependencies]
+ai = [
+  "torch>=2.0",
+  "torchaudio>=2.0",
+  "denoiser>=0.1.5",
+]
+tools = [
+  "pyloudnorm>=0.1.1",
+  "pydub>=0.25",
+]
+
+[project.scripts]
+noise-clean    = "noise_cleaner.cli:main"
+noise-clean-ui = "noise_cleaner.cli:serve_ui"
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+
+[tool.setuptools.packages.find]
+where = ["src"]

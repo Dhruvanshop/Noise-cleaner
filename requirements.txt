@@ -1,0 +1,13 @@
+numpy>=1.24
+scipy>=1.10
+soundfile>=0.12
+fastapi>=0.111
+uvicorn[standard]>=0.29
+python-multipart>=0.0.9
+# Loudness normalization + format conversion
+pyloudnorm>=0.1.1
+pydub>=0.25
+# AI denoising (optional — install for DNS-64 neural network support)
+torch>=2.0
+torchaudio>=2.0
+denoiser>=0.1.5
