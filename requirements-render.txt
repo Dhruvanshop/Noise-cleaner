@@ -1,0 +1,27 @@
+# Lightweight requirements for Render free tier (512MB RAM)
+# Heavy dependencies (demucs, whisper) are optional and not installed
+
+# Core web framework
+fastapi>=0.104.0
+uvicorn[standard]>=0.24.0
+
+# Audio processing (lightweight)
+soundfile>=0.12.0
+scipy>=1.11.0
+numpy>=1.24.0
+
+# Audio I/O
+pydub>=0.25.0
+
+# File handling
+aiofiles>=23.2.0
+
+# Optional: lightweight voice activity detection
+# webrtcvad>=2.0.10  # Uncomment if needed
+
+# Note: These are NOT included to save memory:
+# - torch, demucs (stem separation) - ~500MB
+# - openai-whisper (transcription) - ~300MB
+# - denoiser (AI denoise) - disabled anyway
+
+# For full features, upgrade to paid tier with more RAM

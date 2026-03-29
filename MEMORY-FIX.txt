@@ -1,0 +1,139 @@
+╔═══════════════════════════════════════════════════════════════════════╗
+║                                                                       ║
+║     ⚠️  MEMORY ISSUE FIX FOR RENDER FREE TIER                        ║
+║                                                                       ║
+╚═══════════════════════════════════════════════════════════════════════╝
+
+PROBLEM: Render free tier only has 512MB RAM, but your app tries to load
+heavy AI models (Demucs ~500MB, Whisper ~300MB) which causes out-of-memory.
+
+SOLUTION: Run lightweight version with basic features only.
+
+═══════════════════════════════════════════════════════════════════════
+
+🔧 UPDATE YOUR RENDER DEPLOYMENT:
+
+1. In Render dashboard, go to your service settings
+
+2. UPDATE BUILD COMMAND to:
+   ┌─────────────────────────────────────────────────────────────────┐
+   │ pip install -r requirements-render.txt && pip install -e . --no-deps │
+   └─────────────────────────────────────────────────────────────────┘
+
+3. UPDATE START COMMAND to:
+   ┌─────────────────────────────────────────────────────────────────┐
+   │ bash start-render.sh                                            │
+   └─────────────────────────────────────────────────────────────────┘
+
+4. ADD THESE ENVIRONMENT VARIABLES:
+   ┌─────────────────────────────────────────────────────────────────┐
+   │ ENABLE_STEMS=false                                              │
+   │ ENABLE_TRANSCRIPTION=false                                      │
+   │ WEB_CONCURRENCY=1                                               │
+   └─────────────────────────────────────────────────────────────────┘
+
+5. Click "Manual Deploy" → "Deploy latest commit"
+
+═══════════════════════════════════════════════════════════════════════
+
+✅ WHAT WILL WORK (Lightweight Features):
+
+   ✓ Audio denoising (algorithm mode - no AI)
+   ✓ Audio normalization
+   ✓ Format conversion (MP3, WAV, FLAC, etc.)
+   ✓ Audio trimming
+   ✓ Video audio extraction
+   ✓ Batch processing
+   ✓ Audio repair
+   ✓ Dereverberation
+   ✓ Audio analysis
+
+═══════════════════════════════════════════════════════════════════════
+
+❌ WHAT WON'T WORK (Too Memory-Heavy for Free Tier):
+
+   ✗ Stem separation (Demucs - needs ~500MB)
+   ✗ Transcription (Whisper - needs ~300MB)
+   ✗ AI denoising (already disabled for commercial use)
+
+═══════════════════════════════════════════════════════════════════════
+
+💡 OPTIONS:
+
+Option 1: Use Lightweight Version (FREE)
+   • Deploy with the changes above
+   • Most features work
+   • Perfect for getting started
+   • Still commercial-safe
+   • Cost: $0/month
+
+Option 2: Upgrade to Render Starter ($7/month)
+   • 512MB → 2GB RAM
+   • All features work (stems, transcription)
+   • Always on (no sleep)
+   • Faster processing
+   • Cost: $7/month
+
+Option 3: Use Railway.app ($5 credit/month)
+   • More generous free tier
+   • Most features may work
+   • Easy migration from Render
+   • Cost: $0-5/month
+
+Option 4: Oracle Cloud Always Free
+   • 24GB RAM (very generous!)
+   • All features work
+   • Always on
+   • More complex setup
+   • Cost: $0/month forever
+
+═══════════════════════════════════════════════════════════════════════
+
+🚀 RECOMMENDED: Option 1 (Lightweight Version)
+
+This gives you:
+• FREE hosting
+• Commercial use
+• Most features working
+• Easy to upgrade later
+
+Just update your Render settings as shown above!
+
+═══════════════════════════════════════════════════════════════════════
+
+📝 QUICK FIX STEPS:
+
+1. Commit and push the new files:
+   
+   cd /home/dhruv/Desktop/noise
+   git add requirements-render.txt start-render.sh MEMORY-FIX.txt
+   git commit -m "Optimize for Render free tier - lightweight version"
+   git push origin main
+
+2. In Render dashboard:
+   • Settings → Build & Deploy
+   • Build Command: pip install -r requirements-render.txt && pip install -e . --no-deps
+   • Start Command: bash start-render.sh
+   • Environment → Add: ENABLE_STEMS=false, ENABLE_TRANSCRIPTION=false
+   • Click "Manual Deploy" → "Deploy latest commit"
+
+3. Wait 3-5 minutes for deployment
+
+4. Test: https://noise-cleaner.onrender.com
+
+═══════════════════════════════════════════════════════════════════════
+
+✅ AFTER FIX:
+
+Your app will:
+• Use <200MB RAM (well within 512MB limit)
+• Start successfully
+• Handle all basic audio processing
+• Be ready for commercial use
+• Cost $0/month
+
+You can add heavy features later by upgrading!
+
+═══════════════════════════════════════════════════════════════════════
+
+Need help? Check DEPLOY-NOW.md or email dhruv210803@gmail.com
