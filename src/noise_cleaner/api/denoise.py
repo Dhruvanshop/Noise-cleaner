@@ -53,7 +53,7 @@ def _do_denoise(
 ) -> tuple[str, DenoiseResult]:
     """Blocking denoise \u2014 runs inside the thread-pool."""
     # Respect ENABLE_AI_DENOISE config (commercial license compliance)
-    use_ai = ENABLE_AI_DENOISE and ((backend == \"ai\") or (backend == \"auto\" and _AI_AVAILABLE))
+    use_ai = ENABLE_AI_DENOISE and ((backend == "ai") or (backend == "auto" and _AI_AVAILABLE))
 
     if use_ai:
         ai_res = denoise_file_ai(input_path, output_path)
