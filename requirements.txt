@@ -1,18 +1,14 @@
-# Absolute minimal for Render free tier
-# NO scipy (needs Fortran compiler)
-# Only pre-built wheels
+# ONLY packages with pre-built wheels for Python 3.12
+# NO compilation needed
 
-# Core web framework
-fastapi==0.109.2
-uvicorn==0.27.1
-python-multipart==0.0.9
-aiofiles==23.2.1
-pydantic==2.6.3
-starlette==0.36.3
-
-# Basic audio - only soundfile (has pre-built wheels)
-numpy==1.26.4
-soundfile==0.12.1
-
-# Total: ~80MB, all pre-built wheels
+fastapi==0.109.0
+uvicorn==0.27.0
+python-multipart==0.0.6
+starlette==0.36.0
+anyio==4.2.0
+click==8.1.7
+h11==0.14.0
+idna==3.6
+sniffio==1.3.0
+typing-extensions==4.9.0
 
