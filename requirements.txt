@@ -1,6 +1,11 @@
-# Let pip resolve all versions automatically
+# Core dependencies for Render deployment (Python 3.11 - pre-built wheels)
 fastapi
 uvicorn
 python-multipart
 aiofiles
+
+# Audio processing (required - have pre-built wheels for Python 3.11)
+numpy
+scipy
+soundfile
 
