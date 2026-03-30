@@ -1,19 +1,11 @@
-#!/bin/bash
-# Optimized start script for Render free tier (512MB RAM)
+#!/bin/sh
+# Ultra-simple start script for Render free tier
 
-# Disable heavy features to save memory
+# Disable all heavy features
 export ENABLE_AI_DENOISE=false
 export ENABLE_STEMS=false  
 export ENABLE_TRANSCRIPTION=false
-
-# Single worker to minimize memory
 export WEB_CONCURRENCY=1
-export WORKERS=1
 
-# Start with minimal memory footprint
-cd src && exec uvicorn noise_cleaner.app:app \
-  --host 0.0.0.0 \
-  --port ${PORT:-8000} \
-  --workers 1 \
-  --no-access-log \
-  --log-level warning
+# Start with single worker
+exec uvicorn noise_cleaner.app:app --host 0.0.0.0 --port ${PORT:-8000} --workers 1

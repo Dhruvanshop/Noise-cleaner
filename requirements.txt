@@ -1,13 +1,25 @@
-numpy>=1.24
-scipy>=1.10
-soundfile>=0.12
-fastapi>=0.111
-uvicorn[standard]>=0.29
-python-multipart>=0.0.9
-# Loudness normalization + format conversion
-pyloudnorm>=0.1.1
-pydub>=0.25
-# AI denoising (optional — install for DNS-64 neural network support)
-torch>=2.0
-torchaudio>=2.0
-denoiser>=0.1.5
+# Ultra-minimal for Render free tier (512MB RAM)
+# Heavy AI packages removed to fit in memory
+
+# Core web framework
+fastapi==0.109.2
+uvicorn==0.27.1
+python-multipart==0.0.9
+aiofiles==23.2.1
+pydantic==2.6.3
+starlette==0.36.3
+
+# Basic audio processing
+numpy==1.26.4
+soundfile==0.12.1
+scipy==1.12.0
+
+# Optional lightweight features (commented out to save memory)
+# pyloudnorm>=0.1.1
+# pydub>=0.25
+
+# Heavy AI packages - NOT INSTALLED on free tier
+# torch>=2.0          # ~500MB - too heavy
+# torchaudio>=2.0     # ~300MB - too heavy  
+# denoiser>=0.1.5     # Disabled for commercial use anyway
+
