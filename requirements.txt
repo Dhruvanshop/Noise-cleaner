@@ -1,5 +1,6 @@
-# Ultra-minimal for Render free tier (512MB RAM)
-# Heavy AI packages removed to fit in memory
+# Absolute minimal for Render free tier
+# NO scipy (needs Fortran compiler)
+# Only pre-built wheels
 
 # Core web framework
 fastapi==0.109.2
@@ -9,17 +10,9 @@ aiofiles==23.2.1
 pydantic==2.6.3
 starlette==0.36.3
 
-# Basic audio processing
+# Basic audio - only soundfile (has pre-built wheels)
 numpy==1.26.4
 soundfile==0.12.1
-scipy==1.12.0
 
-# Optional lightweight features (commented out to save memory)
-# pyloudnorm>=0.1.1
-# pydub>=0.25
-
-# Heavy AI packages - NOT INSTALLED on free tier
-# torch>=2.0          # ~500MB - too heavy
-# torchaudio>=2.0     # ~300MB - too heavy  
-# denoiser>=0.1.5     # Disabled for commercial use anyway
+# Total: ~80MB, all pre-built wheels
 
